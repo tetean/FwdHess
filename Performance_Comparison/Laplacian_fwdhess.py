@@ -1,37 +1,32 @@
-'''
+"""
 @author: tetean
-@time: 2024/10/04 11:44 PM
-@info: 计算给定参数和输入向量的 Hessian 张量
-'''
+@time: 2024/10/5 23:17
+@info: 
+"""
 
 import jax
 import jax.numpy as jnp
 import time
 from jax import vmap, jit
 from jax import tree_util
+from util.Conf import load_config
 
-# 设置计算次数
-CNT = int(1e2)
+def init_params(layers):
+    keys = jax.random.split(jax.random.PRNGKey(0), len(layers) - 1)
+    params = []
+    for key, n_in, n_out in zip(keys, layers[:-1], layers[1:]):
+        lb, ub = -(1 / jnp.sqrt(n_in)), (1 / jnp.sqrt(n_in))
+        W = lb + (ub - lb) * jax.random.uniform(key, shape=(n_out, n_in))
+        b = jax.random.uniform(key, shape=(n_out,))
+        params.append([W, b])
+
+    params[-1][1] = jnp.zeros_like(params[-1][1])  # 最后一层需要置 0
+    return params
 
 def dtanh(x):
     """计算双曲正切函数的导数"""
     return 1 - jnp.tanh(x) ** 2
 
-def F_jax(x, params):
-    """
-    向量值函数 F 的定义：
-    F(x) = tanh(C * tanh(Ax + b) + d)
-
-    参数：
-    x -- 输入向量，形状 (n,)
-    params -- 包含层的权重和偏置的元组列表
-
-    返回：
-    输出向量，形状 (p,)
-    """
-    for W, b in params:
-        x = jnp.tanh(jnp.dot(W, x) + b)
-    return x
 
 def tanh_hessian(A, x, b):
     """
@@ -54,40 +49,21 @@ def tanh_hessian(A, x, b):
     # 计算二阶导数 -2 * tanh(z) * sech²(z)
     tanh_prime = -2 * jnp.tanh(z) * sech2_z
 
-    # 获取输入的维度
-    n = len(b)  # 输出维度
-    m = len(x)  # 输入维度
-
     H = A[:, :, None] * A[:, None, :] * tanh_prime[:, None, None]
 
     return H
 
-@tree_util.register_pytree_node_class
+
 class FHess:
     """
     Hessian 类，用于存储向量及其雅可比和 Hessian
     """
     def __init__(self, x=None, jac=None, hess=None):
-        self.x = x      # 向量，形状可能为 (m,)
-        self.jac = jac  # 雅可比矩阵，形状可能为 (m, n)
-        self.hess = hess  # Hessian 张量，形状可能为 (m, m)
+        self.x = x      # 向量
+        self.jac = jac  # 雅可比矩阵
+        self.hess = hess  # Hessian 张量
 
-    def tree_flatten(self):
-        """
-        将类实例拆分为子元素和辅助数据。
-        返回一个元组（子元素的元组, 辅助数据）
-        """
-        children = (self.x, self.jac, self.hess)
-        aux_data = None  # 辅助数据
-        return children, aux_data
 
-    @classmethod
-    def tree_unflatten(cls, aux_data, children):
-        """
-        从子元素和辅助数据中重建类实例。
-        """
-        x, jac, hess = children
-        return cls(x, jac, hess)
 
 def fwd_hess(hess_last, J_uF, jac_last, H_uF, shape):
     """
@@ -120,7 +96,7 @@ def fwd_hess(hess_last, J_uF, jac_last, H_uF, shape):
 
     return hessian_F
 
-def f(x):
+def MLP(x):
     """
     计算每一层的输出、雅可比和 Hessian
 
@@ -154,60 +130,24 @@ def f(x):
 
     return info
 
-# 定义维度
-n = 3  # 输入维度
-in_dim = n
-m = 2  # 第一层输出维度
-p = 2  # 第二层输出维度
-q = 3  # 第三层输出维度
-
-# 初始化随机参数
-key = jax.random.PRNGKey(0)
-A = jax.random.normal(key, (m, n))
-C = jax.random.normal(key, (p, m))
-b = jax.random.normal(key, (m,))
-d = jax.random.normal(key, (p,))
-
-E = jax.random.normal(key, (q, p))
-g = jax.random.normal(key, (q,))
-
-# 定义输入向量
-x = jnp.array([0.1, 0.2, 0.3])
 
 # 定义模型参数
-params = [(A, b), (C, d), (C, d), (E, g)]
+conf = load_config()
+layers = conf['layers']; in_dim = layers[0]
+X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
+CNT = conf['CNT']
+params = init_params(layers)
 
-# 计算 Hessian 张量
-hessian_F = f(x)
 
 print('----------------------------前向 Hessian 结果---------------------------------')
-print("Hessian 张量形状:", hessian_F[-1].hess.shape)
-print("Hessian 张量:\n", hessian_F[-1].hess)
-
 # 计算前向 Hessian 的执行时间
 start_time = time.time()
-hessian_F = f(x)
+for _ in range(CNT):
+    hess = MLP(X)[-1].hess
+    Lap = jnp.trace(hess, axis1=-1, axis2=-2)
 duration = time.time() - start_time
+print('Laplacian: ', Lap)
 print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
 
-print('----------------------------jax 的 Hessian 结果---------------------------------')
-
-# 使用 jax 计算 Hessian 并计算执行时间
-start_time = time.time()
-hess = jax.hessian(F_jax)(x, params)
-duration = time.time() - start_time
-print("Hessian 张量:\n", hess)
-print(f'普通 Hessian 计算 {CNT} 次，共用时：{duration}')
 
 
-
-vmap_f = jax.jit(vmap(f))
-
-
-x = jnp.array([[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
-
-start_time = time.time()
-outputs = vmap_f(x)
-duration = time.time() - start_time
-print(f'并行前向 Hessian 计算 {CNT} 次，共用时：{duration}')
-print(outputs[-1].hess)
