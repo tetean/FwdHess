@@ -6,9 +6,9 @@
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 import time
 from jax import vmap, jit
+from jax import tree_util
 
 # 设置计算次数
 CNT = int(1e2)
@@ -49,36 +49,45 @@ def tanh_hessian(A, x, b):
     z = A @ x + b
 
     # 计算一阶导数 sech²(z) = 1 - tanh²(z)
-    sech2_z = 1 - np.tanh(z) ** 2
+    sech2_z = 1 - jnp.tanh(z) ** 2
 
     # 计算二阶导数 -2 * tanh(z) * sech²(z)
-    tanh_prime = -2 * np.tanh(z) * sech2_z
+    tanh_prime = -2 * jnp.tanh(z) * sech2_z
 
     # 获取输入的维度
     n = len(b)  # 输出维度
     m = len(x)  # 输入维度
 
-    # 初始化 Hessian 张量
-    H = np.zeros((n, m, m))  # 3维 Hessian 张量
-
-    # 计算上三角部分的二阶导数，并利用对称性赋值下三角
-    for i in range(m):
-        for j in range(i, m):  # 只计算上三角
-            # A 的每个元素对 x 的二阶导数，利用向量化
-            H[:, i, j] = A[:, i] * A[:, j] * tanh_prime
-            if i != j:
-                H[:, j, i] = H[:, i, j]  # 利用对称性复制到下三角
+    H = A[:, :, None] * A[:, None, :] * tanh_prime[:, None, None]
 
     return H
 
+@tree_util.register_pytree_node_class
 class FHess:
     """
     Hessian 类，用于存储向量及其雅可比和 Hessian
     """
     def __init__(self, x=None, jac=None, hess=None):
-        self.x = x
-        self.jac = jac
-        self.hess = hess
+        self.x = x      # 向量，形状可能为 (m,)
+        self.jac = jac  # 雅可比矩阵，形状可能为 (m, n)
+        self.hess = hess  # Hessian 张量，形状可能为 (m, m)
+
+    def tree_flatten(self):
+        """
+        将类实例拆分为子元素和辅助数据。
+        返回一个元组（子元素的元组, 辅助数据）
+        """
+        children = (self.x, self.jac, self.hess)
+        aux_data = None  # 如果有需要，可以包含辅助数据
+        return children, aux_data
+
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        """
+        从子元素和辅助数据中重建类实例。
+        """
+        x, jac, hess = children
+        return cls(x, jac, hess)
 
 def fwd_hess(hess_last, J_uF, jac_last, H_uF, shape):
     """
@@ -111,7 +120,7 @@ def fwd_hess(hess_last, J_uF, jac_last, H_uF, shape):
 
     return hessian_F
 
-def f(x, params):
+def f(x):
     """
     计算每一层的输出、雅可比和 Hessian
 
@@ -169,7 +178,7 @@ x = jnp.array([0.1, 0.2, 0.3])
 params = [(A, b), (C, d), (C, d), (E, g)]
 
 # 计算 Hessian 张量
-hessian_F = f(x, params)
+hessian_F = f(x)
 
 print('----------------------------前向 Hessian 结果---------------------------------')
 print("Hessian 张量形状:", hessian_F[-1].hess.shape)
@@ -177,7 +186,7 @@ print("Hessian 张量:\n", hessian_F[-1].hess)
 
 # 计算前向 Hessian 的执行时间
 start_time = time.time()
-hessian_F = f(x, params)
+hessian_F = f(x)
 duration = time.time() - start_time
 print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
 
@@ -189,3 +198,16 @@ hess = jax.hessian(F_jax)(x, params)
 duration = time.time() - start_time
 print("Hessian 张量:\n", hess)
 print(f'普通 Hessian 计算 {CNT} 次，共用时：{duration}')
+
+
+
+vmap_f = jax.jit(vmap(f))
+
+
+x = jnp.array([[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
+
+start_time = time.time()
+outputs = vmap_f(x)
+duration = time.time() - start_time
+print(f'并行前向 Hessian 计算 {CNT} 次，共用时：{duration}')
+print(outputs[-1].hess)
