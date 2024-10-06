@@ -49,12 +49,3 @@ duration = time.time() - start_time
 print('Laplacian: ', Lap)
 # print("Hessian 张量:\n", hess)
 print(f'普通 Hessian 计算 {CNT} 次，共用时：{duration}')
-
-
-
-print('----------------------------通过 FwdHess 求 Laplacian结果---------------------------------')
-
-
-
-
-

@@ -7,8 +7,6 @@
 import jax
 import jax.numpy as jnp
 import time
-from jax import vmap, jit
-from jax import tree_util
 from util.Conf import load_config
 
 def init_params(layers):
