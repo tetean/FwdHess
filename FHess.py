@@ -3,6 +3,9 @@
 @time: 2024/10/5 21:59
 @info: 
 """
+from jax import tree_util
+
+@tree_util.register_pytree_node_class
 class FHess:
     """
     Hessian 类，用于存储向量及其雅可比和 Hessian

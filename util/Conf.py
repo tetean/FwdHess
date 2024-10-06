@@ -9,33 +9,46 @@ import sys
 yaml = YAML(typ='safe')
 yaml.default_flow_style = False
 
+
+
 def load_config(file_path='./config.yaml', skip=False, res_path='./result.yaml') -> Dict[str, Any]:
     """
     加载配置文件
 
     参数:
     file_path: 配置文件路径
-    skip: Skip experiments that have already been conducted
+    skip: 是否跳过已经完成的实验
+    res_path: 结果文件路径
 
     返回:
     配置字典
     """
+
+    def load_yaml(file) -> Dict[str, Any]:
+        """加载 YAML 文件的辅助函数"""
+        with open(file, 'r', encoding='utf-8') as f:
+            return yaml.load(f) or {}
+
+    config = load_yaml(file_path)
+
     if skip:
-        with open(res_path, 'r', encoding='utf-8') as file_res:
-            res = yaml.load(file_res)
-            if res is None:
-                res = {}
-            with open(file_path, 'r', encoding='utf-8') as file_conf:
-                conf = yaml.load(file_conf)
-                result = {k: v for k, v in conf.items() if k not in res or len(res[k]['running time']) < 3}
-                if not result:
-                    print("没有新的实验，程序结束。")
-                    sys.exit()
-                print(result)
-                return result
-    else:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            return yaml.load(file)
+        res = load_yaml(res_path)
+        if not res:
+            return config
+
+        # 过滤已经运行过的实验
+        filtered_config = {
+            k: v for k, v in config.items()
+            if k not in res or len(res[k].get('running time', [])) < 3
+        }
+
+        if not filtered_config:
+            print("没有新的实验，程序结束。")
+            sys.exit()
+
+        return filtered_config
+
+    return config
 
 
 def write_res(conf={}, file_path='./result.yaml'):
@@ -46,7 +59,7 @@ def write_res(conf={}, file_path='./result.yaml'):
         res = {}
 
     res = merge_dicts(res, conf)
-
+    print(res)
     with open(file_path, 'w', encoding='utf-8') as file:
         yaml.dump(res, file)
 

@@ -11,7 +11,6 @@ import time
 from util.Conf import load_config, write_res
 
 
-
 def init_params(layers):
     keys = jax.random.split(jax.random.PRNGKey(0), len(layers) - 1)
     params = []
@@ -49,7 +48,7 @@ for exp in conf.values():
         hess = jax.hessian(MLP)(X, params)
         Lap = jnp.trace(hess, axis1=-1, axis2=-2)
     duration = time.time() - start_time
-    # print('Laplacian: ', Lap)
+    print('Laplacian: ', Lap)
     # print("Hessian 张量:\n", hess)
     print(f'普通 Hessian 计算 {CNT} 次，共用时：{duration}')
     exp['running time'] = {'jax': duration}

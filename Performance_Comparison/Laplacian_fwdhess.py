@@ -8,6 +8,7 @@ import jax
 import jax.numpy as jnp
 import time
 from util.Conf import load_config, write_res
+from jax import tree_util
 
 def init_params(layers):
     keys = jax.random.split(jax.random.PRNGKey(0), len(layers) - 1)
@@ -21,11 +22,13 @@ def init_params(layers):
     params[-1][1] = jnp.zeros_like(params[-1][1])  # 最后一层需要置 0
     return params
 
+@jax.jit
 def dtanh(x):
     """计算双曲正切函数的导数"""
     return 1 - jnp.tanh(x) ** 2
 
 
+@jax.jit
 def tanh_hessian(A, x, b):
     """
     计算给定输入的二阶导数 Hessian 张量
@@ -52,6 +55,7 @@ def tanh_hessian(A, x, b):
     return H
 
 
+@tree_util.register_pytree_node_class
 class FHess:
     """
     Hessian 类，用于存储向量及其雅可比和 Hessian
@@ -60,6 +64,23 @@ class FHess:
         self.x = x      # 向量
         self.jac = jac  # 雅可比矩阵
         self.hess = hess  # Hessian 张量
+
+    def tree_flatten(self):
+        """
+        将类实例拆分为子元素和辅助数据。
+        返回一个元组（子元素的元组, 辅助数据）
+        """
+        children = (self.x, self.jac, self.hess)
+        aux_data = None  # 辅助数据
+        return children, aux_data
+
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        """
+        从子元素和辅助数据中重建类实例。
+        """
+        x, jac, hess = children
+        return cls(x, jac, hess)
 
 
 
@@ -126,13 +147,13 @@ def MLP(x):
         x = x2
         info.append(FHess(x2, jac, hess))
 
-    return {}
+    return info
 
 
 # 定义模型参数
 conf = load_config(skip=True)
 for exp in conf.values():
-    layers = exp['layers'];
+    layers = exp['layers']
     in_dim = layers[0]
     X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
     CNT = exp['CNT']
@@ -145,9 +166,10 @@ for exp in conf.values():
         hess = MLP(X)[-1].hess
         Lap = jnp.trace(hess, axis1=-1, axis2=-2)
     duration = time.time() - start_time
-    # print('Laplacian: ', Lap)
+    print('Laplacian: ', Lap)
     print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
     exp['running time'] = {'forward hessian': duration}
+
 write_res(conf)
 
 
