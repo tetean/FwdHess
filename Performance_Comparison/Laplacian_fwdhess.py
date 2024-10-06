@@ -7,9 +7,7 @@
 import jax
 import jax.numpy as jnp
 import time
-from jax import vmap, jit
-from jax import tree_util
-from util.Conf import load_config
+from util.Conf import load_config, write_res
 
 def init_params(layers):
     keys = jax.random.split(jax.random.PRNGKey(0), len(layers) - 1)
@@ -128,26 +126,28 @@ def MLP(x):
         x = x2
         info.append(FHess(x2, jac, hess))
 
-    return info
+    return {}
 
 
 # 定义模型参数
-conf = load_config()
-layers = conf['layers']; in_dim = layers[0]
-X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
-CNT = conf['CNT']
-params = init_params(layers)
+conf = load_config(skip=True)
+for exp in conf.values():
+    layers = exp['layers'];
+    in_dim = layers[0]
+    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
+    CNT = exp['CNT']
+    params = init_params(layers)
 
-
-print('----------------------------前向 Hessian 结果---------------------------------')
-# 计算前向 Hessian 的执行时间
-start_time = time.time()
-for _ in range(CNT):
-    hess = MLP(X)[-1].hess
-    Lap = jnp.trace(hess, axis1=-1, axis2=-2)
-duration = time.time() - start_time
-print('Laplacian: ', Lap)
-print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
-
+    print('----------------------------前向 Hessian 结果---------------------------------')
+    # 计算前向 Hessian 的执行时间
+    start_time = time.time()
+    for _ in range(CNT):
+        hess = MLP(X)[-1].hess
+        Lap = jnp.trace(hess, axis1=-1, axis2=-2)
+    duration = time.time() - start_time
+    # print('Laplacian: ', Lap)
+    print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
+    exp['running time'] = {'forward hessian': duration}
+write_res(conf)
 
 

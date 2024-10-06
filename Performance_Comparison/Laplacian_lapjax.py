@@ -7,7 +7,7 @@ import lapjax as jax
 from lapjax import LapTuple
 import lapjax.numpy as jnp
 import time
-from util.Conf import load_config
+from util.Conf import load_config, write_res
 
 
 def init_params(layers):
@@ -30,20 +30,25 @@ def MLP_lapjax(x, params):
     return x
 
 # Log = Log().logger
-conf = load_config()
-layers = conf['layers']
-X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
-CNT = conf['CNT']
-params = init_params(layers)
-
-print('----------------------------通过 Lapjax 求 Laplacian结果---------------------------------')
+conf = load_config(skip=True)
 
 
-start_time = time.time()
-for _ in range(CNT):
-    input_laptuple = LapTuple(X, is_input=True)
-    output_laptuple = MLP_lapjax(input_laptuple, params)
-    Lap = output_laptuple.lap
-duration = time.time() - start_time
-print('Laplacian: ', Lap)
-print(f'Lapjax 计算 {CNT} 次，共用时：{duration}')
+for exp in conf.values():
+    layers = exp['layers']
+    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
+    CNT = exp['CNT']
+    params = init_params(layers)
+
+    print('----------------------------通过 Lapjax 求 Laplacian结果---------------------------------')
+
+    start_time = time.time()
+    for _ in range(CNT):
+        input_laptuple = LapTuple(X, is_input=True)
+        output_laptuple = MLP_lapjax(input_laptuple, params)
+        Lap = output_laptuple.lap
+    duration = time.time() - start_time
+    # print('Laplacian: ', Lap)
+    print(f'Lapjax 计算 {CNT} 次，共用时：{duration}')
+    exp['running time'] = {'lapjax': duration}
+
+write_res(conf)

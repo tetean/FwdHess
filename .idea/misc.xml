@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="FwdHess" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="FwdHess" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="FwdHessLocal" project-jdk-type="Python SDK" />
 </project>
