@@ -36,7 +36,7 @@ conf = load_config(skip=True)
 
 for exp in conf.values():
     layers = exp['layers']
-    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
+    # X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
     CNT = exp['CNT']
     params = init_params(layers)
 
@@ -45,10 +45,11 @@ for exp in conf.values():
     # 使用 jax 计算 Hessian 并计算执行时间
     start_time = time.time()
     for _ in range(CNT):
+        X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
         hess = jax.hessian(MLP)(X, params)
         Lap = jnp.trace(hess, axis1=-1, axis2=-2)
     duration = time.time() - start_time
-    print('Laplacian: ', Lap)
+    # print('Laplacian: ', Lap)
     # print("Hessian 张量:\n", hess)
     print(f'普通 Hessian 计算 {CNT} 次，共用时：{duration}')
     exp['running time'] = {'jax': duration}

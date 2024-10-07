@@ -155,7 +155,7 @@ conf = load_config(skip=True)
 for exp in conf.values():
     layers = exp['layers']
     in_dim = layers[0]
-    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
+    # X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
     CNT = exp['CNT']
     params = init_params(layers)
 
@@ -163,10 +163,11 @@ for exp in conf.values():
     # 计算前向 Hessian 的执行时间
     start_time = time.time()
     for _ in range(CNT):
+        X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
         hess = MLP(X)[-1].hess
         Lap = jnp.trace(hess, axis1=-1, axis2=-2)
     duration = time.time() - start_time
-    print('Laplacian: ', Lap)
+    # print('Laplacian: ', Lap[0])
     print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
     exp['running time'] = {'forward hessian': duration}
 

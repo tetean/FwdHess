@@ -35,7 +35,7 @@ conf = load_config(skip=True)
 
 for exp in conf.values():
     layers = exp['layers']
-    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
+    # X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
     CNT = exp['CNT']
     params = init_params(layers)
 
@@ -43,6 +43,7 @@ for exp in conf.values():
 
     start_time = time.time()
     for _ in range(CNT):
+        X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
         input_laptuple = LapTuple(X, is_input=True)
         output_laptuple = MLP_lapjax(input_laptuple, params)
         Lap = output_laptuple.lap
