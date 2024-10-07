@@ -4,37 +4,51 @@
 #深层网络：10层以上，适用于更复杂的方程和高维问题。
 
 exp1:
-  CNT: 1  # 实验总轮数
-  layers: [5, 5]
+  CNT: 1
+  layers: [1, 1]
 
 exp2:
   CNT: 1  # 实验总轮数
-  layers: [5, 5, 5, 5, 5, 5]
+  layers: [64, 64]
 
 exp3:
-  CNT: 1
-  layers: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
-
-
+  CNT: 1  # 实验总轮数
+  layers: [256, 256]
 exp4:
-  CNT: 1
-  layers: [10, 10]
+  CNT: 1  # 实验总轮数
+  layers: [1024, 1024]
 
 exp5:
-  CNT: 1
-  layers: [10, 10, 10, 10, 10, 10]
+  CNT: 1  # 实验总轮数
+  layers: [4096, 4096]
 exp6:
-  CNT: 1
-  layers: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+  CNT: 1  # 实验总轮数
+  layers: [16384, 16384]
+#exp7:
+#  CNT: 1
+#  layers: [65536, 65536]
+
 
 exp7:
   CNT: 1
-  layers: [18, 18]
+  layers: [1, 1, 1]
 
 exp8:
   CNT: 1
-  layers: [18, 18, 18, 18, 18, 18]
+  layers: [4, 4, 4]
+
 exp9:
   CNT: 1
-  layers: [18, 18, 18, 18, 18, 18, 18, 18, 18, 18]
+  layers: [16, 16, 16]
 
+exp10:
+  CNT: 1
+  layers: [1, 1, 1, 1, 1, 1, 1, 1]
+
+exp11:
+  CNT: 1
+  layers: [4, 4, 4, 4, 4, 4 , 4, 4]
+
+exp12:
+  CNT: 1
+  layers: [16, 16, 16, 16, 16, 16, 16, 16]

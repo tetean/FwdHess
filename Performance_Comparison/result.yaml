@@ -1,0 +1,129 @@
+exp1:
+  CNT: 1
+  layers:
+  - 1
+  - 1
+  running time:
+    forward hessian: 0.17553067207336426
+    jax: 0.4039194583892822
+    lapjax: 0.4518272876739502
+exp10:
+  CNT: 1
+  layers:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  running time:
+    forward hessian: 0.3590099811553955
+    jax: 0.4219045639038086
+    lapjax: 0.6263258457183838
+exp11:
+  CNT: 1
+  layers:
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  running time:
+    forward hessian: 0.505617618560791
+    jax: 0.5095827579498291
+    lapjax: 0.5815732479095459
+exp12:
+  CNT: 1
+  layers:
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  running time:
+    forward hessian: 0.6522223949432373
+    jax: 0.49579834938049316
+    lapjax: 0.596412181854248
+exp2:
+  CNT: 1
+  layers:
+  - 64
+  - 64
+  running time:
+    forward hessian: 0.2513587474822998
+    jax: 0.46774983406066895
+    lapjax: 0.5345685482025146
+exp3:
+  CNT: 1
+  layers:
+  - 256
+  - 256
+  running time:
+    forward hessian: 0.25994110107421875
+    jax: 0.6163220405578613
+    lapjax: 0.5484845638275146
+exp4:
+  CNT: 1
+  layers:
+  - 1024
+  - 1024
+  running time:
+    forward hessian: 0.3360731601715088
+    jax: 0.7819082736968994
+    lapjax: 0.6200368404388428
+exp5:
+  CNT: 1
+  layers:
+  - 4096
+  - 4096
+  running time:
+    forward hessian: 0.37713027000427246
+    jax: 22.588818550109863
+    lapjax: 0.8997812271118164
+exp6:
+  CNT: 1
+  layers:
+  - 16384
+  - 16384
+  running time:
+    forward hessian: 0.5351512432098389
+    jax: 1.6720664501190186
+    lapjax: 3.7698426246643066
+exp7:
+  CNT: 1
+  layers:
+  - 1
+  - 1
+  - 1
+  running time:
+    forward hessian: 0.3700120449066162
+    jax: 0.388960599899292
+    lapjax: 0.4338035583496094
+exp8:
+  CNT: 1
+  layers:
+  - 4
+  - 4
+  - 4
+  running time:
+    forward hessian: 0.45896005630493164
+    jax: 0.48653388023376465
+    lapjax: 0.5073208808898926
+exp9:
+  CNT: 1
+  layers:
+  - 16
+  - 16
+  - 16
+  running time:
+    forward hessian: 0.4657251834869385
+    jax: 0.48078393936157227
+    lapjax: 0.49327874183654785
