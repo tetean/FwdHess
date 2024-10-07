@@ -11,7 +11,7 @@ from jax import vmap, jit
 from jax import tree_util
 
 # 设置计算次数
-CNT = int(1e2)
+CNT = 1
 
 def dtanh(x):
     """计算双曲正切函数的导数"""
@@ -186,7 +186,8 @@ print("Hessian 张量:\n", hessian_F[-1].hess)
 
 # 计算前向 Hessian 的执行时间
 start_time = time.time()
-hessian_F = f(x)
+for _ in range(CNT):
+    hessian_F = f(x)
 duration = time.time() - start_time
 print(f'前向 Hessian 计算 {CNT} 次，共用时：{duration}')
 
@@ -194,7 +195,8 @@ print('----------------------------jax 的 Hessian 结果-----------------------
 
 # 使用 jax 计算 Hessian 并计算执行时间
 start_time = time.time()
-hess = jax.hessian(F_jax)(x, params)
+for _ in range(CNT):
+    hess = jax.hessian(F_jax)(x, params)
 duration = time.time() - start_time
 print("Hessian 张量:\n", hess)
 print(f'普通 Hessian 计算 {CNT} 次，共用时：{duration}')
@@ -207,7 +209,8 @@ vmap_f = jax.jit(vmap(f))
 x = jnp.array([[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
 
 start_time = time.time()
-outputs = vmap_f(x)
+for _ in range(CNT):
+    outputs = vmap_f(x)
 duration = time.time() - start_time
 print(f'并行前向 Hessian 计算 {CNT} 次，共用时：{duration}')
 print(outputs[-1].hess)
