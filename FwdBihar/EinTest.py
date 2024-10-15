@@ -60,18 +60,14 @@ BF_x = term1 + term2 + term3 + term4 + term5
 
 BF_x_jax = jax.hessian(jax.hessian(MLP_2layer))(x, A, b, C, d)
 
-
-
-def condense_B(x):
-    y = np.zeros((x.shape[0], x.shape[1], x.shape[1]))
-
-    for i in range(x.shape[0]):
-        for j in range(x.shape[1]):
-            for k in range(x.shape[2]):
-                y[i][j][k]= x[i][j][j][k][k]
-    return jnp.array(y)
-
-
 judge(BF_x, BF_x_jax)
 
 
+term1 = jnp.einsum('hj,j123->h123', JF_u, Tu_x)
+term2 = jnp.einsum('hjk,j12,k3->h123', HF_u, Hu_x, Ju_x) + jnp.einsum('hjk,j13,k2->h123', HF_u, Hu_x, Ju_x) \
+    + jnp.einsum('hjk,j23,k1->h123', HF_u, Hu_x, Ju_x)
+term3 = jnp.einsum('hjkl,j1,k2,l3->h123', TF_u, Ju_x, Ju_x, Ju_x,)
+
+TF_x = term1 + term2 + term3
+TF_x_jax = jax.hessian(jax.jacobian(MLP_2layer))(x, A, b, C, d)
+judge(TF_x, TF_x_jax)
