@@ -1,0 +1,128 @@
+exp1:
+  CNT: 100
+  layers:
+  - 2
+  - 2
+  running time:
+    forward hessian: 0.009464025497436523
+    jax: 0.19198989868164062
+exp10:
+  CNT: 100
+  layers:
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  - 4
+  running time:
+    forward hessian: 0.169525146484375
+    jax: 0.09916901588439941
+exp11:
+  CNT: 100
+  layers:
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  running time:
+    forward hessian: 0.25145792961120605
+    jax: 0.22141408920288086
+exp12:
+  CNT: 1
+  layers:
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  running time:
+    forward hessian: 0.371351957321167
+    jax: 4.165724039077759
+exp2:
+  CNT: 100
+  layers:
+  - 4
+  - 4
+  running time:
+    forward hessian: 0.00849294662475586
+    jax: 0.1852428913116455
+exp3:
+  CNT: 100
+  layers:
+  - 8
+  - 8
+  running time:
+    forward hessian: 0.008976936340332031
+    jax: 0.24311614036560059
+exp4:
+  CNT: 100
+  layers:
+  - 16
+  - 16
+  running time:
+    forward hessian: 0.010657072067260742
+    jax: 0.9166240692138672
+exp5:
+  CNT: 100
+  layers:
+  - 2
+  - 2
+  - 2
+  - 2
+  running time:
+    forward hessian: 0.11814498901367188
+    jax: 0.41028904914855957
+exp6:
+  CNT: 100
+  layers:
+  - 4
+  - 4
+  - 4
+  - 4
+  running time:
+    forward hessian: 0.12065625190734863
+    jax: 0.43857383728027344
+exp7:
+  CNT: 100
+  layers:
+  - 8
+  - 8
+  - 8
+  - 8
+  running time:
+    forward hessian: 0.15534687042236328
+    jax: 0.5085649490356445
+exp8:
+  CNT: 1
+  layers:
+  - 16
+  - 16
+  - 16
+  - 16
+  running time:
+    forward hessian: 0.17786026000976562
+    jax: 1.9996521472930908
+exp9:
+  CNT: 100
+  layers:
+  - 2
+  - 2
+  - 2
+  - 2
+  - 2
+  - 2
+  - 2
+  - 2
+  running time:
+    forward hessian: 0.16350793838500977
+    jax: 0.09143710136413574
