@@ -27,12 +27,12 @@ def init_params(layers):
     返回:
     初始化后的网络参数列表
     """
-    keys = lapjax.random.split(lapjax.random.PRNGKey(0), len(layers) - 1)
+    keys = jax.random.split(lapjax.random.PRNGKey(0), len(layers) - 1)
     params = []
     for key, n_in, n_out in zip(keys, layers[:-1], layers[1:]):
         lb, ub = -(1 / jnp.sqrt(n_in)), (1 / jnp.sqrt(n_in))
-        W = lb + (ub - lb) * lapjax.random.uniform(key, shape=(n_out, n_in))
-        B = lapjax.random.uniform(key, shape=(n_out,))
+        W = lb + (ub - lb) * jax.random.uniform(key, shape=(n_out, n_in))
+        B = jax.random.uniform(key, shape=(n_out,))
         params.append({'W': W, 'B': B})
     return params
 
