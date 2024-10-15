@@ -4,8 +4,8 @@ exp1:
   - 2
   - 2
   running time:
-    forward hessian: 0.009464025497436523
-    jax: 0.19198989868164062
+    forward hessian: 0.07579684257507324
+    jax: 2.034329891204834
 exp10:
   CNT: 100
   layers:
@@ -18,8 +18,8 @@ exp10:
   - 4
   - 4
   running time:
-    forward hessian: 0.169525146484375
-    jax: 0.09916901588439941
+    forward hessian: 0.8421571254730225
+    jax: 8.575616121292114
 exp11:
   CNT: 100
   layers:
@@ -32,10 +32,10 @@ exp11:
   - 8
   - 8
   running time:
-    forward hessian: 0.25145792961120605
-    jax: 0.22141408920288086
+    forward hessian: 1.257845163345337
+    jax: 15.024765491485596
 exp12:
-  CNT: 1
+  CNT: 100
   layers:
   - 16
   - 16
@@ -46,32 +46,32 @@ exp12:
   - 16
   - 16
   running time:
-    forward hessian: 0.371351957321167
-    jax: 4.165724039077759
+    forward hessian: 1.91202712059021
+    jax: 702.0684101581573
 exp2:
   CNT: 100
   layers:
   - 4
   - 4
   running time:
-    forward hessian: 0.00849294662475586
-    jax: 0.1852428913116455
+    forward hessian: 0.0778203010559082
+    jax: 1.8282146453857422
 exp3:
   CNT: 100
   layers:
   - 8
   - 8
   running time:
-    forward hessian: 0.008976936340332031
-    jax: 0.24311614036560059
+    forward hessian: 0.06685233116149902
+    jax: 1.761178970336914
 exp4:
   CNT: 100
   layers:
   - 16
   - 16
   running time:
-    forward hessian: 0.010657072067260742
-    jax: 0.9166240692138672
+    forward hessian: 0.06984591484069824
+    jax: 7.397380590438843
 exp5:
   CNT: 100
   layers:
@@ -80,8 +80,8 @@ exp5:
   - 2
   - 2
   running time:
-    forward hessian: 0.11814498901367188
-    jax: 0.41028904914855957
+    forward hessian: 0.6063516139984131
+    jax: 4.547836780548096
 exp6:
   CNT: 100
   layers:
@@ -90,8 +90,8 @@ exp6:
   - 4
   - 4
   running time:
-    forward hessian: 0.12065625190734863
-    jax: 0.43857383728027344
+    forward hessian: 0.6033837795257568
+    jax: 4.559804677963257
 exp7:
   CNT: 100
   layers:
@@ -100,18 +100,18 @@ exp7:
   - 8
   - 8
   running time:
-    forward hessian: 0.15534687042236328
-    jax: 0.5085649490356445
+    forward hessian: 0.70810866355896
+    jax: 6.140184640884399
 exp8:
-  CNT: 1
+  CNT: 100
   layers:
   - 16
   - 16
   - 16
   - 16
   running time:
-    forward hessian: 0.17786026000976562
-    jax: 1.9996521472930908
+    forward hessian: 0.9735727310180664
+    jax: 285.9928057193756
 exp9:
   CNT: 100
   layers:
@@ -124,5 +124,5 @@ exp9:
   - 2
   - 2
   running time:
-    forward hessian: 0.16350793838500977
-    jax: 0.09143710136413574
+    forward hessian: 0.7330255508422852
+    jax: 8.563512563705444

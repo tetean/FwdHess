@@ -298,8 +298,8 @@ for exp in conf.values():
 
     # 计算前向 bihar 的执行时间
     start_time = time.time()
-    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
     for _ in range(CNT):
+        X = jax.random.uniform(jax.random.PRNGKey(0), shape=(layers[0],))
         bihar = MLP(params, X)[-1].bihar
     duration = time.time() - start_time
     print(f'前向 bihar 计算 {CNT} 次，共用时：{duration}')

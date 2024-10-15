@@ -32,15 +32,15 @@ def init_params(layers):
     return params
 
 
+@jax.jit
 def condense_B(x):
-    y = np.zeros((x.shape[0], x.shape[1], x.shape[1]))
-    for i in range(x.shape[0]):
-        for j in range(x.shape[1]):
-            for k in range(x.shape[1]):
-                y[i][j][k] = x[i][j][j][k][k]
-    return jnp.array(y)
+    # 假设x的形状是(m, n, n, n, n)
+    # 取出x[:, j, j, k, k]，并将结果存储到y
+    y = x[:, jnp.arange(x.shape[1]), jnp.arange(x.shape[1]), :, :]
+    y = y[:, :, jnp.arange(x.shape[1]), jnp.arange(x.shape[1])]
+    return y
 
-
+@jax.jit
 def MLP(params, x):
     for layer in params[:-1]:
         W = layer['W']

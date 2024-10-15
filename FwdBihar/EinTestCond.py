@@ -135,7 +135,7 @@ TF_x = term1 + term2 + term3
 TF_x_jax = condense_T(jax.hessian(jax.jacobian(MLP_2layer))(x, A, b, C, d))
 judge(TF_x, TF_x_jax)
 
-print('condense_B')
+print('condensed_B')
 term1 = jnp.einsum('hj,j13->h13', JF_u, Bu_x_cond)
 term2 = 2 * (jnp.einsum('hjk,j13,k3->h13', HF_u, Tu_x_cond, Ju_x) + jnp.einsum('hjk,j31,k1->h13', HF_u, Tu_x_cond, Ju_x))
 term3 = jnp.einsum('hjk,j1,k3->h13', HF_u, Hu_x_cond, Hu_x_cond) + 2 * jnp.einsum('hjk,j13,k13->h13', HF_u, Hu_x, Hu_x)
