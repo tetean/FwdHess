@@ -272,7 +272,7 @@ def MLP(params, x):
         jac = W
         hess = jnp.zeros((W.shape[0], x.shape[0], x.shape[0]))
         trd = jnp.zeros((W.shape[0], x.shape[0], x.shape[0], x.shape[0]))
-        bihar = jnp.zeros((W.shape[0], x.shape[0]))
+        bihar = jnp.zeros((W.shape[0], x.shape[0], x.shape[0]))
     else:
 
         JF_u = W
