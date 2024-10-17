@@ -1,0 +1,64 @@
+experiments:
+  exp1:
+    d: 2
+    laplacian_method: original
+    layers:
+    - 2
+    - 8
+    - 8
+    - 1
+    num_boundary: 200
+    num_interior: 1000
+    optimizer: lm
+    optimizer_args:
+      maxiter: 2000
+      tol: 1e-18
+    result:
+      duration_seconds: 17.352169275283813
+      l2_error:
+        boundary:
+          absolute: 2.204838070235324e-08
+          relative: 7.323167817403135e-10
+        interior:
+          absolute: 2.1887305348801693e-08
+          relative: 4.730019407231783e-10
+      linf_error:
+        boundary:
+          absolute: 5.684114318116329e-09
+          relative: 2.949890312762884e-06
+        interior:
+          absolute: 4.475463860620366e-09
+          relative: 1.4898379298970563e-06
+  exp2:
+    d: 2
+    laplacian_method: lapjax
+    layers:
+    - 2
+    - 8
+    - 8
+    - 1
+    num_boundary: 200
+    num_interior: 1000
+    optimizer: lm
+    optimizer_args:
+      maxiter: 2000
+      tol: 1e-18
+    result:
+      duration_seconds: 12.114245176315308
+      l2_error:
+        boundary:
+          absolute: 2.2957216543273467e-08
+          relative: 7.625029322398791e-10
+        interior:
+          absolute: 2.042255532158385e-08
+          relative: 4.413475367430055e-10
+      linf_error:
+        boundary:
+          absolute: 5.707732758652995e-09
+          relative: 2.8314880171863557e-06
+        interior:
+          absolute: 4.501793909872376e-09
+          relative: 9.955393964805337e-07
+test:
+  test_boundary: 2000
+  test_interior: 10000
