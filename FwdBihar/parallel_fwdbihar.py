@@ -310,12 +310,9 @@ for _ in range(CNT):
 
     bihar_jax = vmap_MLP_jax(params, X)
 
-    # judge(bihar, tmp)
-    # for _ in range(2):
-    #     tmp = condense_B(bihar_jax[_])
-    #     # print(tmp)
-    #     # print(bihar)
-    #     judge(bihar[_], tmp)
+    for _ in range(2):
+        tmp = condense_B(bihar_jax[_])
+        judge(bihar[_], tmp)
 duration = time.time() - start_time
 print(f'前向 bihar 计算 {CNT} 次，共用时：{duration}')
 
