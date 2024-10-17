@@ -48,7 +48,7 @@ class FHess:
         将类实例拆分为子元素和辅助数据。
         返回一个元组（子元素的元组, 辅助数据）
         """
-        children = (self.x, self.jac, self.hess)
+        children = (self.x, self.jac, self.hess, self.trd, self.bihar)
         aux_data = None  # 辅助数据
         return children, aux_data
 
@@ -57,7 +57,7 @@ class FHess:
         """
         从子元素和辅助数据中重建类实例。
         """
-        x, jac, hess = children
+        x, jac, hess, trd, bihar = children
         return cls(x, jac, hess)
 
 @jax.jit
