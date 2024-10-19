@@ -215,6 +215,85 @@ def fwd_bihar(JF_u, Ju_x, HF_u, Hu_x, TF_u, Tu_x, BF_u, Bu_x_cond):
     BF_x = term1 + term2 + term3 + term4 + term5
     return BF_x
 
+# @jax.jit
+# def MLP_fwdbihar(x, params):
+#     info = None
+#     in_dim = -1
+#
+#     @jax.jit
+#     def simple_layer(x, A, b):
+#         return jnp.tanh(A @ x + b)
+#
+#     for layer in params[:-1]:
+#         W = layer['W']
+#         b = layer['B']
+#         x1 = W @ x + b
+#         x2 = jnp.tanh(x1)
+#
+#         if in_dim < 0:
+#             in_dim = W.shape[1]
+#
+#         if info is None:
+#             # 第一层的雅可比和 Hessian
+#             jac = jnp.diag(dtanh(x1)) @ W
+#             hess = tanh_hessian(W, x, b)
+#             trd = jax.jacobian(jax.hessian(simple_layer))(x, W, b)
+#
+#
+#             bihar = jax.hessian(jax.hessian(simple_layer))(x, W, b)
+#             bihar = condense_B(bihar)
+#         else:
+#             # 计算后续层的雅可比和 Hessian
+#
+#             JF_u = jnp.diag(dtanh(x1)) @ W
+#             jac = JF_u @ info.jac
+#
+#             HF_u = tanh_hessian(W, x, b)
+#             hess = fwd_hess(info.hess, jnp.diag(dtanh(x1)) @ W, info.jac, HF_u, [W.shape[0], in_dim])
+#
+#             TF_u = jax.jacobian(jax.hessian(simple_layer))(x, W, b)
+#             trd = fwd_trd(JF_u, info.jac, HF_u, info.hess, TF_u, info.trd)
+#
+#             BF_u = jax.hessian(jax.hessian(simple_layer))(x, W, b)
+#             bihar = fwd_bihar(JF_u, info.jac, HF_u, info.hess, TF_u, info.trd, BF_u, info.bihar)
+#         x = x2
+#         info = FHess(x2, jac, hess, trd, bihar)
+#
+#     W = params[-1]['W']
+#     # b = params[-1]['B']
+#
+#
+#     if info is None:
+#         # jac = W
+#         # hess = jnp.zeros((W.shape[0], x.shape[0], x.shape[0]))
+#         # trd = jnp.zeros((W.shape[0], x.shape[0], x.shape[0], x.shape[0]))
+#         bihar = jnp.zeros((W.shape[0], x.shape[0], x.shape[0]))
+#     else:
+#
+#         JF_u = W
+#         # jac = JF_u @ info.jac
+#
+#         HF_u = jnp.zeros((W.shape[0], x.shape[0], x.shape[0]))
+#         # hess = final_hess(W, info.hess, [W.shape[0], in_dim])
+#
+#         TF_u = jnp.zeros((W.shape[0], x.shape[0], x.shape[0], x.shape[0]))
+#         # trd = fwd_trd(JF_u, info.jac, HF_u, info.hess, TF_u, info.trd)
+#
+#         BF_u = jnp.zeros((W.shape[0], x.shape[0], x.shape[0], x.shape[0], x.shape[0]))
+#         bihar = fwd_bihar(JF_u, info.jac, HF_u, info.hess, TF_u, info.trd, BF_u, info.bihar)
+#     # x = W @ x + b
+#
+#     bihar = jnp.sum(bihar, axis=(1, 2))
+#     info = bihar
+#     return info
+
+@jax.jit
+def fwd_hess(JF_u, Ju_x, HF_u, Hu_x):
+    term1 = jnp.einsum('ik,kjl->ijl', JF_u, Hu_x)
+    term2 = jnp.einsum('kj,ikm,ml->ijl', Ju_x, HF_u, Ju_x)
+
+    return term1 + term2
+
 @jax.jit
 def MLP_fwdbihar(x, params):
     info = None
@@ -235,7 +314,8 @@ def MLP_fwdbihar(x, params):
         if info is None:
             # 第一层的雅可比和 Hessian
             jac = jnp.diag(dtanh(x1)) @ W
-            hess = tanh_hessian(W, x, b)
+            # hess = tanh_hessian(W, x, b)
+            hess = jax.hessian(simple_layer)(x, W, b)
             trd = jax.jacobian(jax.hessian(simple_layer))(x, W, b)
 
 
@@ -247,8 +327,10 @@ def MLP_fwdbihar(x, params):
             JF_u = jnp.diag(dtanh(x1)) @ W
             jac = JF_u @ info.jac
 
-            HF_u = tanh_hessian(W, x, b)
-            hess = fwd_hess(info.hess, jnp.diag(dtanh(x1)) @ W, info.jac, HF_u, [W.shape[0], in_dim])
+            # HF_u = tanh_hessian(W, x, b)
+            # hess = fwd_hess(info[-1].hess, jnp.diag(dtanh(x1)) @ W, info[-1].jac, HF_u, [W.shape[0], in_dim])
+            HF_u = jax.hessian(simple_layer)(x, W, b)
+            hess = fwd_hess(JF_u, info.jac, HF_u, info.hess)
 
             TF_u = jax.jacobian(jax.hessian(simple_layer))(x, W, b)
             trd = fwd_trd(JF_u, info.jac, HF_u, info.hess, TF_u, info.trd)
@@ -273,7 +355,8 @@ def MLP_fwdbihar(x, params):
         # jac = JF_u @ info.jac
 
         HF_u = jnp.zeros((W.shape[0], x.shape[0], x.shape[0]))
-        # hess = final_hess(W, info.hess, [W.shape[0], in_dim])
+        # hess = final_hess(W, info[-1].hess, [W.shape[0], in_dim])
+        # hess = fwd_hess(JF_u, info.jac, HF_u, info.hess)
 
         TF_u = jnp.zeros((W.shape[0], x.shape[0], x.shape[0], x.shape[0]))
         # trd = fwd_trd(JF_u, info.jac, HF_u, info.hess, TF_u, info.trd)
@@ -283,8 +366,9 @@ def MLP_fwdbihar(x, params):
     # x = W @ x + b
 
     bihar = jnp.sum(bihar, axis=(1, 2))
-    info = bihar
-    return info
+    # info = FHess(x, jac, hess, trd, bihar)
+    return bihar
+
 
 def init_params(layers):
     """
@@ -439,9 +523,12 @@ def loss_fn(params, interior_points, boundary_points, d, laplacian_method):
         bihar_u = get_bihar_func(u_net)
         vmap_bihar = jit(vmap(bihar_u))
 
+    vect_u_net = jax.jit(jax.vmap(u_net))
+
     interior_loss = jnp.mean((-vmap_bihar(interior_points).reshape(-1) - f(interior_points, d)) ** 2)
-    boundary_loss = jnp.mean((u_net(boundary_points).reshape(-1) - h(boundary_points, d)) ** 2)
+    boundary_loss = jnp.mean((vect_u_net(boundary_points).reshape(-1) - h(boundary_points, d)) ** 2)
     return interior_loss + boundary_loss
+
 
 def generate_data(num_interior, num_boundary, d):
     """
@@ -535,24 +622,27 @@ def train_lm(
     def residual_fun(params_flat):
         params = params_unravel(params_flat)
         def u_net(x):
-            return MLP(params, x)
+                return MLP(params, x)
+
+        def u_net_fwdbihar(x):
+            return MLP_fwdbihar(x, params)
 
         if laplacian_method == 'fwdbihar':
-            bihar_u = jax.jit(jax.vmap(MLP_fwdbihar, in_axes=(0, None)))
-            vmap_bihar = bihar_u
+            vmap_bihar = jax.jit(jax.vmap(u_net_fwdbihar))
         else:
             bihar_u = get_bihar_func(u_net)
             vmap_bihar = jit(vmap(bihar_u))
 
 
-        u_net = jax.jit(jax.vmap(u_net))
+        vect_u_nect = jax.jit(jax.vmap(u_net))
+
         if laplacian_method == 'fwdbihar':
-            # interior_residuals = - f(interior_points, d)
-            interior_residuals = (-vmap_bihar(interior_points, params).reshape(-1) - f(interior_points, d))
+            interior_residuals = - f(interior_points, d)
+            # interior_residuals = (-vmap_bihar(interior_points).reshape(-1) - f(interior_points, d))
         else:
             interior_residuals = (-vmap_bihar(interior_points).reshape(-1) - f(interior_points, d))
 
-        boundary_residuals = (u_net(boundary_points).reshape(-1) - h(boundary_points, d))
+        boundary_residuals = (vect_u_nect(boundary_points).reshape(-1) - h(boundary_points, d))
 
         return jnp.concatenate([interior_residuals, boundary_residuals])
 
@@ -632,6 +722,7 @@ def calculate_error(params, test_points, d, error_type, norm_type):
             error = jnp.linalg.norm(true_values - predicted_values)
     elif norm_type == 'Linf':
         if error_type == 'relative':
+            # print('[test]', test_points, true_values, predicted_values)
             error = jnp.max(jnp.abs(true_values - predicted_values) / jnp.abs(true_values))
         else:  # absolute
             error = jnp.max(jnp.abs(true_values - predicted_values))
@@ -669,6 +760,7 @@ def run_experiment(
     interior_points, boundary_points = generate_data(num_interior, num_boundary, d)
 
     if optimizer == 'adam':
+        print('param', type(params), 'ip', type(interior_points), 'bound', type(boundary_points), 'oarg', type(optimizer_args), 'trag', type(training_args), 'd', type(d), 'lapm', type(laplacian_method))
         trained_params = train_adam(params, interior_points, boundary_points, optimizer_args, training_args["epochs"], d, laplacian_method)
     elif optimizer == 'lm':
         trained_params = train_lm(params, interior_points, boundary_points, d, optimizer_args, laplacian_method)
@@ -676,7 +768,6 @@ def run_experiment(
         trained_params = train_lbfgs(params, interior_points, boundary_points, d, optimizer_args, laplacian_method)
     else:
         raise ValueError("Unsupported optimizer. Choose 'adam' or 'lm'.")
-
     return trained_params
 
 def test_model(trained_params, d, test_interior, test_boundary, error_type, norm_type):
@@ -733,6 +824,7 @@ def run_experiments(config: Dict[str, Any]):
         optimizer = exp_config['optimizer']
         optimizer_args = exp_config['optimizer_args']
         training_args = exp_config['training_args'] if 'training_args' in exp_config else None
+        print(training_args)
         num_interior = exp_config['num_interior']
         num_boundary = exp_config['num_boundary']
         layers = exp_config['layers']
