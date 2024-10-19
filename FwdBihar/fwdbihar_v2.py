@@ -3,11 +3,7 @@
 @time: 2024/10/18 15:19
 @info: 
 """
-'''
-@Autior: tetean
-@Time: 2024/10/17 5:35 PM
-@Info:
-'''
+
 import jax
 import jax.numpy as jnp
 from jax import tree_util
