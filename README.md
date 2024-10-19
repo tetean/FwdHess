@@ -1,3 +1,7 @@
 # FwdHess
 
-forward hessian in PINN with the goal of defeating Lapjax
+Forward hessian in PINN with the goal of defeating Lapjax
+
+# FwdBihar
+
+New method with excellent performance
