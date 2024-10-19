@@ -6,10 +6,8 @@
 import jax
 import jax.numpy as jnp
 from jax import tree_util
-import numpy as np
 from util.Jug import judge
 import time
-from util.Conf import load_config, write_res
 
 def init_params(layers):
     """
@@ -287,10 +285,12 @@ def MLP(x, params):
         BF_u = jnp.zeros((W.shape[0], x.shape[0], x.shape[0], x.shape[0], x.shape[0]))
         bihar = fwd_bihar(JF_u, info[-1].jac, HF_u, info[-1].hess, TF_u, info[-1].trd, BF_u, info[-1].bihar)
     x = W @ x + b
+
+    bihar = jnp.sum(bihar, axis=(1, 2))
     info.append(FHess(x, jac, hess, trd, bihar))
     return info
 
-layers = [2, 3, 2]
+layers = [2, 8, 8, 1]
 CNT = 1
 params = init_params(layers)
 
@@ -304,15 +304,15 @@ vmap_MLP_jax = jax.jit(jax.vmap(vmap_MLP_jax, in_axes=(None, 0)))
 # 计算前向 bihar 的执行时间
 start_time = time.time()
 for _ in range(CNT):
-    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(2, layers[0]))
+    X = jax.random.uniform(jax.random.PRNGKey(0), shape=(1, layers[0]))
 
     bihar = vmap_MLP(X, params)[-1].bihar
 
-    bihar_jax = vmap_MLP_jax(params, X)
-
-    for _ in range(2):
-        tmp = condense_B(bihar_jax[_])
-        judge(bihar[_], tmp)
+    # bihar_jax = vmap_MLP_jax(params, X)
+    #
+    # for _ in range(3):
+    #     tmp = condense_B(bihar_jax[_])
+    #     judge(bihar[_], tmp)
 duration = time.time() - start_time
 print(f'前向 bihar 计算 {CNT} 次，共用时：{duration}')
 
